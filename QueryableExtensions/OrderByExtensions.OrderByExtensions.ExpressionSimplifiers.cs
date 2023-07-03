@@ -29,13 +29,13 @@ public static partial class OrderByExtensions
         return Expression.NotEqual(keySelector.Body, Expression.Constant(null));
     }
 
-    private static Expression<Func<TSource, bool>> ToLambda<TSource, TKey>(this Expression expression, Expression<Func<TSource, TKey>> keySelector)
-    {
-        return Expression.Lambda<Func<TSource, bool>>(expression, keySelector.Parameters);
-    }
-
     private static Expression ToConstant(this object? value)
     {
         return Expression.Constant(value);
+    }
+
+    private static Expression<Func<TSource, bool>> ToLambda<TSource, TKey>(this Expression expression, Expression<Func<TSource, TKey>> keySelector)
+    {
+        return Expression.Lambda<Func<TSource, bool>>(expression, keySelector.Parameters);
     }
 }
