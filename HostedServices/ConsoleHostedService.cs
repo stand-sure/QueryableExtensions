@@ -11,13 +11,18 @@ internal class ConsoleHostedService : BackgroundService
 {
     private const string MessageTemplate = $"{nameof(ConsoleHostedService)}.{{Method}}: {{Message}}";
     private readonly IDbContextFactory<SchoolContext> dbContextFactory;
+    private readonly IHostApplicationLifetime lifetime;
 
     private readonly ILogger<ConsoleHostedService> logger;
 
-    public ConsoleHostedService(ILogger<ConsoleHostedService> logger, IDbContextFactory<SchoolContext> dbContextFactory)
+    public ConsoleHostedService(
+        ILogger<ConsoleHostedService> logger,
+        IDbContextFactory<SchoolContext> dbContextFactory,
+        IHostApplicationLifetime lifetime)
     {
         this.logger = logger;
         this.dbContextFactory = dbContextFactory;
+        this.lifetime = lifetime;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -37,13 +42,15 @@ internal class ConsoleHostedService : BackgroundService
         {
             this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"Student: {student}");
         }
+        
+        this.lifetime.StopApplication();
     }
 
     private static IAsyncEnumerable<Student> GetStudents(SchoolContext context)
     {
         IQueryable<Student> students = context.Students.AsNoTracking();
 
-        IQueryable<Student> query = students.OrderByDescendingNullsFirst(s => s.FavoriteColor);
+        IQueryable<Student> query = students.OrderByEnumKeyDescending(s => s.FavoriteColor);
         
         return query.AsAsyncEnumerable();
     }
