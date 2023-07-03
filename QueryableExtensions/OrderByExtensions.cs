@@ -11,7 +11,7 @@ public static partial class OrderByExtensions
         this IQueryable<TSource> source,
         Expression<Func<TSource, TKey>> keySelector)
     {
-        BinaryExpression notEqual = NotEqualToNull(keySelector);
+        BinaryExpression notEqual = keySelector.NotEqualToNull();
 
         Expression<Func<TSource, bool>> lambda = notEqual.ToLambda(keySelector);
 
@@ -23,7 +23,7 @@ public static partial class OrderByExtensions
         this IQueryable<TSource> source,
         Expression<Func<TSource, TKey>> keySelector)
     {
-        BinaryExpression equal = EqualToNull(keySelector);
+        BinaryExpression equal = keySelector.EqualToNull();
 
         Expression<Func<TSource, bool>> lambda = equal.ToLambda(keySelector);
 
@@ -35,7 +35,7 @@ public static partial class OrderByExtensions
         this IQueryable<TSource> source,
         Expression<Func<TSource, TKey>> keySelector)
     {
-        BinaryExpression notEqual = NotEqualToNull(keySelector);
+        BinaryExpression notEqual = keySelector.NotEqualToNull();
 
         Expression<Func<TSource, bool>> lambda = notEqual.ToLambda(keySelector);
 
@@ -47,25 +47,10 @@ public static partial class OrderByExtensions
         this IQueryable<TSource> source,
         Expression<Func<TSource, TKey>> keySelector)
     {
-        BinaryExpression equal = EqualToNull(keySelector);
+        BinaryExpression equal = keySelector.EqualToNull();
 
         Expression<Func<TSource, bool>> lambda = equal.ToLambda(keySelector);
 
         return source.OrderBy(lambda).ThenBy(keySelector);
-    }
-
-    private static BinaryExpression EqualToNull<TSource, TKey>(Expression<Func<TSource, TKey>> keySelector)
-    {
-        return Expression.Equal(keySelector.Body, Expression.Constant(null));
-    }
-
-    private static BinaryExpression NotEqualToNull<TSource, TKey>(Expression<Func<TSource, TKey>> keySelector)
-    {
-        return Expression.NotEqual(keySelector.Body, Expression.Constant(null));
-    }
-
-    private static Expression<Func<TSource, bool>> ToLambda<TSource, TKey>(this Expression expression, Expression<Func<TSource, TKey>> keySelector)
-    {
-        return Expression.Lambda<Func<TSource, bool>>(expression, keySelector.Parameters);
     }
 }
