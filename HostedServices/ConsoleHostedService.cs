@@ -40,7 +40,7 @@ internal class ConsoleHostedService : BackgroundService
         
         await foreach (Student student in GetStudents(context).ConfigureAwait(false))
         {
-            this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"Student: {student}");
+            this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
         }
         
         this.lifetime.StopApplication();
@@ -50,7 +50,7 @@ internal class ConsoleHostedService : BackgroundService
     {
         IQueryable<Student> students = context.Students.AsNoTracking();
 
-        IQueryable<Student> query = students.OrderByEnumKeyDescending(s => s.FavoriteColor);
+        IQueryable<Student> query = students.OrderByEnumKeyDescendingNullsLast(s => s.FavoriteColor).ThenBy(s => s.StudentId);
         
         return query.AsAsyncEnumerable();
     }
