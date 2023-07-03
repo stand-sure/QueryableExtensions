@@ -10,6 +10,6 @@ public class Student
 
     public override string ToString()
     {
-        return $"{nameof(Student)}{this.StudentId}: {this.Name} {(this.FavoriteColor == null ? string.Empty : $"{this.FavoriteColor}({this.FavoriteColor:D})")}";
+        return $"{nameof(Student)}{this.StudentId:_000}: {this.Name} {(this.FavoriteColor == null ? string.Empty : $"{this.FavoriteColor}({this.FavoriteColor:D})")}";
     }
 }

@@ -50,7 +50,7 @@ internal class ConsoleHostedService : BackgroundService
     {
         IQueryable<Student> students = context.Students.AsNoTracking();
 
-        IQueryable<Student> query = students.OrderByEnumKeyDescendingNullsLast(s => s.FavoriteColor).ThenBy(s => s.StudentId);
+        IQueryable<Student> query = students.OrderByEnumKeyNullsLast(s => s.FavoriteColor).ThenBy(s => s.StudentId);
         
         return query.AsAsyncEnumerable();
     }
