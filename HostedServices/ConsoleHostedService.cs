@@ -65,8 +65,8 @@ internal class ConsoleHostedService : BackgroundService
                 //NotIn = new SearchValues<int> { Values = new[] { 1, 2 } },
                 Or = new[]
                 {
-                    new ValueSearchCriteria<int> { EqualTo = new SearchValue<int> { Value = 1 } },
-                    new ValueSearchCriteria<int> { EqualTo = new SearchValue<int> { Value = 2 } },
+                    new ValueSearchCriteria<int> { EqualTo = 1 },
+                    new ValueSearchCriteria<int> { EqualTo = 2 },
                 }
             },
 
@@ -74,7 +74,7 @@ internal class ConsoleHostedService : BackgroundService
             {
                 And = new[]
                 {
-                    new StringSearchCriteria { EndsWith = new SearchValue<string> { Value = "7" } },
+                    new StringSearchCriteria { EndsWith = "7" },
                 },
             },
         };
