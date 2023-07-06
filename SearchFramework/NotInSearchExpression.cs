@@ -3,7 +3,7 @@ namespace ConsoleEF.SearchFramework;
 using System.Linq.Expressions;
 using System.Reflection;
 
-public class InSearchExpression<TSource> : ISearchExpression
+public class NotInSearchExpression<TSource> : ISearchExpression
 {
     public IEnumerable<TSource?>? Values { get; set; }
 
@@ -14,11 +14,13 @@ public class InSearchExpression<TSource> : ISearchExpression
         ConstantExpression constant = Expression.Constant(this.Values);
         MethodCallExpression methodCall = Expression.Call(null, method, constant, memberExpression);
 
-        return methodCall;
+        UnaryExpression not = Expression.Not(methodCall);
+
+        return not;
     }
 
-    public static implicit operator InSearchExpression<TSource>?(SearchValues<TSource> searchValues)
+    public static implicit operator NotInSearchExpression<TSource>?(SearchValues<TSource> searchValues)
     {
-        return new InSearchExpression<TSource> { Values = searchValues.Values };
+        return new NotInSearchExpression<TSource> { Values = searchValues.Values };
     }
 }

@@ -64,15 +64,11 @@ internal class ConsoleHostedService : BackgroundService
         {
             StudentId = new ValueSearchCriteria<int>
             {
-                In = new SearchValues<int> { Values = new[] { 1, 2 } },
+                NotIn = new SearchValues<int> { Values = new[] { 1, 2 } },
             },
         };
 
         IQueryable<Student> query = students.Where(c);
-
-        var values = new int[] { 1, 2 };
-        Expression<Func<Student, bool>> foo = student => values.Contains(student.StudentId);
-        Expression bar = c;
 
         return query.ToList();
     }

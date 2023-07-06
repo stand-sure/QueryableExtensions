@@ -4,23 +4,29 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 
+using JetBrains.Annotations;
+
 public class ComparableSearchExpression<TMember> : ISearchExpression
 {
-    internal EqualToSearchExpression<TMember>? EqualToSearchExpression { get; init; }
+    internal EqualToSearchExpression<TMember>? EqualToSearchExpression { [UsedImplicitly] get; init; }
 
-    internal NotEqualToSearchExpression<TMember>? NotEqualToSearchExpression { get; init; }
+    internal NotEqualToSearchExpression<TMember>? NotEqualToSearchExpression { [UsedImplicitly] get; init; }
 
-    internal GreaterThanSearchExpression<TMember>? GreaterThanSearchExpression { get; init; }
+    internal GreaterThanSearchExpression<TMember>? GreaterThanSearchExpression { [UsedImplicitly] get; init; }
 
-    internal GreaterThanOrEqualToSearchExpression<TMember>? GreaterThanOrEqualToSearchExpression { get; init; }
+    internal GreaterThanOrEqualToSearchExpression<TMember>? GreaterThanOrEqualToSearchExpression { [UsedImplicitly] get; init; }
 
-    internal LessThanSearchExpression<TMember>? LessThanSearchExpression { get; init; }
+    internal LessThanSearchExpression<TMember>? LessThanSearchExpression { [UsedImplicitly] get; init; }
 
-    internal LessThanOrEqualToSearchExpression<TMember>? LessThanOrEqualToSearchExpression { get; init; }
+    internal LessThanOrEqualToSearchExpression<TMember>? LessThanOrEqualToSearchExpression { [UsedImplicitly] get; init; }
+
+    internal InSearchExpression<TMember>? InSearchExpression { [UsedImplicitly] get; init; }
     
-    internal InSearchExpression<TMember>? InSearchExpression { get; init; }
+    internal NotInSearchExpression<TMember>? NotInSearchExpression { [UsedImplicitly] get; init; }
 
-    [SuppressMessage("Major Code Smell", "S3011:Reflection should not be used to increase accessibility of classes, methods, or fields", Justification = "Props are internal to avoid end-user fatigue.")]
+    [SuppressMessage("Major Code Smell",
+        "S3011:Reflection should not be used to increase accessibility of classes, methods, or fields",
+        Justification = "Props are internal to avoid end-user fatigue.")]
     Expression ISearchExpression.GetExpression(MemberExpression memberExpression)
     {
         IEnumerable<(string name, ISearchExpression expression)> searchExpressions =

@@ -5,25 +5,11 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
     private readonly SearchValue<T>? equalTo;
     private readonly SearchValue<T>? greaterThan;
     private readonly SearchValue<T>? greaterThanOrEqualTo;
+    private readonly SearchValues<T>? @in;
     private readonly SearchValue<T>? lessThan;
     private readonly SearchValue<T>? lessThanOrEqualTo;
     private readonly SearchValue<T>? notEqualTo;
-    private readonly SearchValues<T>? @in;
-
-    public SearchValues<T>? In
-    {
-        get => this.@in;
-
-        init
-        {
-            this.@in = value;
-
-            if (this.@in is not null)
-            {
-                this.InSearchExpression = this.@in;
-            }
-        }
-    }
+    private readonly SearchValues<T>? notIn;
 
     public SearchValue<T>? EqualTo
     {
@@ -105,6 +91,36 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
             if (this.lessThanOrEqualTo is not null)
             {
                 this.LessThanOrEqualToSearchExpression = this.lessThanOrEqualTo;
+            }
+        }
+    }
+
+    public SearchValues<T>? In
+    {
+        get => this.@in;
+
+        init
+        {
+            this.@in = value;
+
+            if (this.@in is not null)
+            {
+                this.InSearchExpression = this.@in;
+            }
+        }
+    }
+
+    public SearchValues<T>? NotIn
+    {
+        get => this.notIn;
+
+        init
+        {
+            this.notIn = value;
+
+            if (this.notIn is not null)
+            {
+                this.NotInSearchExpression = this.notIn;
             }
         }
     }
