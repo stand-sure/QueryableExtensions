@@ -1,7 +1,10 @@
 namespace ConsoleEF.HostedServices;
 
+using System.Linq.Expressions;
+
 using ConsoleEF.Data;
 using ConsoleEF.QueryableExtensions;
+using ConsoleEF.SearchFramework;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -29,33 +32,61 @@ internal class ConsoleHostedService : BackgroundService
     {
         SchoolContext context = await this.dbContextFactory.CreateDbContextAsync(stoppingToken).ConfigureAwait(false);
 
-        await EnsureCourses(context, stoppingToken);
+        await EnsureCoursesAsync(context, stoppingToken);
 
         await foreach (Course course in context.Courses.AsAsyncEnumerable().ConfigureAwait(false))
         {
             this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"Course: {course}");
         }
 
-        await EnsureStudents(context, stoppingToken).ConfigureAwait(false);
-        
-        await foreach (Student student in GetStudents(context).ConfigureAwait(false))
+        await EnsureStudentsAsync(context, stoppingToken).ConfigureAwait(false);
+
+        await foreach (Student student in GetStudentsAsync(context).ConfigureAwait(false))
         {
             this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
         }
-        
+
+        IEnumerable<Student> foo = SearchStudents(context);
+
+        foreach (Student student in foo)
+        {
+            this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
+        }
+
         this.lifetime.StopApplication();
     }
 
-    private static IAsyncEnumerable<Student> GetStudents(SchoolContext context)
+    private static IEnumerable<Student> SearchStudents(SchoolContext context)
+    {
+        IQueryable<Student> students = context.Students.AsNoTracking();
+
+        var c = new StudentSearchCriteria()
+        {
+            StudentId = new ValueSearchCriteria<int>
+            {
+                In = new SearchValues<int> { Values = new[] { 1, 2 } },
+            },
+        };
+
+        IQueryable<Student> query = students.Where(c);
+
+        var values = new int[] { 1, 2 };
+        Expression<Func<Student, bool>> foo = student => values.Contains(student.StudentId);
+        Expression bar = c;
+
+        return query.ToList();
+    }
+
+    private static IAsyncEnumerable<Student> GetStudentsAsync(SchoolContext context)
     {
         IQueryable<Student> students = context.Students.AsNoTracking();
 
         IQueryable<Student> query = students.OrderByEnumKeyDescendingNullsFirst(s => s.FavoriteColor).ThenBy(s => s.StudentId);
-        
+
         return query.AsAsyncEnumerable();
     }
 
-    private static async Task CreateSomeCourses(SchoolContext context, CancellationToken stoppingToken)
+    private static async Task CreateSomeCoursesAsync(SchoolContext context, CancellationToken stoppingToken)
     {
         for (var i = 0; i < 10; i += 1)
         {
@@ -65,7 +96,7 @@ internal class ConsoleHostedService : BackgroundService
         await context.SaveChangesAsync(stoppingToken).ConfigureAwait(false);
     }
 
-    private static async Task EnsureCourses(SchoolContext context, CancellationToken stoppingToken)
+    private static async Task EnsureCoursesAsync(SchoolContext context, CancellationToken stoppingToken)
     {
         int courseCount = await context.Courses.CountAsync(stoppingToken).ConfigureAwait(false);
 
@@ -74,10 +105,10 @@ internal class ConsoleHostedService : BackgroundService
             return;
         }
 
-        await CreateSomeCourses(context, stoppingToken).ConfigureAwait(false);
+        await CreateSomeCoursesAsync(context, stoppingToken).ConfigureAwait(false);
     }
 
-    private static async Task EnsureStudents(SchoolContext context, CancellationToken stoppingToken)
+    private static async Task EnsureStudentsAsync(SchoolContext context, CancellationToken stoppingToken)
     {
         int count = await context.Students.CountAsync(stoppingToken).ConfigureAwait(false);
 
@@ -86,7 +117,7 @@ internal class ConsoleHostedService : BackgroundService
             return;
         }
 
-        await MakeSomeStudents(context, stoppingToken).ConfigureAwait(false);
+        await MakeSomeStudentsAsync(context, stoppingToken).ConfigureAwait(false);
     }
 
     private static Course MakeCourse()
@@ -97,7 +128,7 @@ internal class ConsoleHostedService : BackgroundService
         };
     }
 
-    private static async Task MakeSomeStudents(SchoolContext context, CancellationToken cancellationToken)
+    private static async Task MakeSomeStudentsAsync(DbContext context, CancellationToken cancellationToken)
     {
         for (var i = 0; i < 10; i += 1)
         {
