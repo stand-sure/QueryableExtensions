@@ -2,6 +2,7 @@ namespace ConsoleEF.SearchFramework;
 
 public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparableSearchCriteria<T>
 {
+    private readonly IEnumerable<ValueSearchCriteria<T>>? and;
     private readonly SearchValue<T>? equalTo;
     private readonly SearchValue<T>? greaterThan;
     private readonly SearchValue<T>? greaterThanOrEqualTo;
@@ -10,21 +11,7 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
     private readonly SearchValue<T>? lessThanOrEqualTo;
     private readonly SearchValue<T>? notEqualTo;
     private readonly SearchValues<T>? notIn;
-    private readonly IEnumerable<ValueSearchCriteria<T>>? and;
-
-    public IEnumerable<ValueSearchCriteria<T>>? And
-    {
-        get => this.and;
-        init
-        {
-            this.and = value?.ToList();
-
-            if (this.and?.Any() == true)
-            {
-                this.AndSearchExpression = this.and.ToArray();
-            }
-        }
-    }
+    private readonly IEnumerable<ValueSearchCriteria<T>>? or;
 
     public SearchValue<T>? EqualTo
     {
@@ -110,6 +97,20 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
         }
     }
 
+    public IEnumerable<ValueSearchCriteria<T>>? And
+    {
+        get => this.and;
+        init
+        {
+            this.and = value?.ToList();
+
+            if (this.and?.Any() == true)
+            {
+                this.AndSearchExpression = this.and.ToArray();
+            }
+        }
+    }
+
     public SearchValues<T>? In
     {
         get => this.@in;
@@ -136,6 +137,20 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
             if (this.notIn is not null)
             {
                 this.NotInSearchExpression = this.notIn;
+            }
+        }
+    }
+
+    public IEnumerable<ValueSearchCriteria<T>>? Or
+    {
+        get => this.or;
+        init
+        {
+            this.or = value?.ToList();
+
+            if (this.or?.Any() == true)
+            {
+                this.OrSearchExpression = this.or.ToArray();
             }
         }
     }

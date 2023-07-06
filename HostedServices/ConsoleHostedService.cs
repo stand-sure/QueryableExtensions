@@ -63,16 +63,19 @@ internal class ConsoleHostedService : BackgroundService
             StudentId = new ValueSearchCriteria<int>
             {
                 //NotIn = new SearchValues<int> { Values = new[] { 1, 2 } },
-                And = new[]
+                Or = new[]
                 {
-                    new ValueSearchCriteria<int> { NotEqualTo = new SearchValue<int> { Value = 1 } },
-                    new ValueSearchCriteria<int> { NotEqualTo = new SearchValue<int> { Value = 2 } },
+                    new ValueSearchCriteria<int> { EqualTo = new SearchValue<int> { Value = 1 } },
+                    new ValueSearchCriteria<int> { EqualTo = new SearchValue<int> { Value = 2 } },
                 }
             },
 
             Name = new StringSearchCriteria
-            { 
-                EndsWith = new SearchValue<string> { Value = "7" },
+            {
+                And = new[]
+                {
+                    new StringSearchCriteria { EndsWith = new SearchValue<string> { Value = "7" } },
+                },
             },
         };
 

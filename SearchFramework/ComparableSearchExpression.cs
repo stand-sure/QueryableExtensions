@@ -8,24 +8,6 @@ using JetBrains.Annotations;
 
 public class ComparableSearchExpression<TMember> : ISearchExpression
 {
-    internal EqualToSearchExpression<TMember>? EqualToSearchExpression { [UsedImplicitly] get; init; }
-
-    internal NotEqualToSearchExpression<TMember>? NotEqualToSearchExpression { [UsedImplicitly] get; init; }
-
-    internal GreaterThanSearchExpression<TMember>? GreaterThanSearchExpression { [UsedImplicitly] get; init; }
-
-    internal GreaterThanOrEqualToSearchExpression<TMember>? GreaterThanOrEqualToSearchExpression { [UsedImplicitly] get; init; }
-
-    internal LessThanSearchExpression<TMember>? LessThanSearchExpression { [UsedImplicitly] get; init; }
-
-    internal LessThanOrEqualToSearchExpression<TMember>? LessThanOrEqualToSearchExpression { [UsedImplicitly] get; init; }
-
-    internal InSearchExpression<TMember>? InSearchExpression { [UsedImplicitly] get; init; }
-    
-    internal NotInSearchExpression<TMember>? NotInSearchExpression { [UsedImplicitly] get; init; }
-    
-    internal AndSearchExpression<TMember>? AndSearchExpression { [UsedImplicitly] get; init; }
-
     [SuppressMessage("Major Code Smell",
         "S3011:Reflection should not be used to increase accessibility of classes, methods, or fields",
         Justification = "Props are internal to avoid end-user fatigue.")]
@@ -40,9 +22,27 @@ public class ComparableSearchExpression<TMember> : ISearchExpression
 
         searchExpressions = searchExpressions.ToList();
 
-        Expression result = searchExpressions.Select(s => s.expression).Aggregate((Expression)(Expression.Constant(true)),
+        Expression result = searchExpressions.Select(s => s.expression).Aggregate((Expression)Expression.Constant(true),
             (agg, next) => Expression.AndAlso(agg, next.GetExpression(memberExpression)));
 
         return result;
     }
+
+    internal AndSearchExpression<TMember>? AndSearchExpression { [UsedImplicitly] get; init; }
+    internal EqualToSearchExpression<TMember>? EqualToSearchExpression { [UsedImplicitly] get; init; }
+
+    internal GreaterThanOrEqualToSearchExpression<TMember>? GreaterThanOrEqualToSearchExpression { [UsedImplicitly] get; init; }
+
+    internal GreaterThanSearchExpression<TMember>? GreaterThanSearchExpression { [UsedImplicitly] get; init; }
+
+    internal InSearchExpression<TMember>? InSearchExpression { [UsedImplicitly] get; init; }
+
+    internal LessThanOrEqualToSearchExpression<TMember>? LessThanOrEqualToSearchExpression { [UsedImplicitly] get; init; }
+
+    internal LessThanSearchExpression<TMember>? LessThanSearchExpression { [UsedImplicitly] get; init; }
+
+    internal NotEqualToSearchExpression<TMember>? NotEqualToSearchExpression { [UsedImplicitly] get; init; }
+
+    internal NotInSearchExpression<TMember>? NotInSearchExpression { [UsedImplicitly] get; init; }
+    internal OrSearchExpression<TMember>? OrSearchExpression { [UsedImplicitly] get; init; }
 }
