@@ -44,7 +44,7 @@ internal class ConsoleHostedService : BackgroundService
             this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
         }
 
-        IEnumerable<Student> foo = SearchStudents(context);
+        IEnumerable<Student> foo = this.SearchStudents(context);
 
         foreach (Student student in foo)
         {
@@ -54,7 +54,7 @@ internal class ConsoleHostedService : BackgroundService
         this.lifetime.StopApplication();
     }
 
-    private static IEnumerable<Student> SearchStudents(SchoolContext context)
+    private IEnumerable<Student> SearchStudents(SchoolContext context)
     {
         IQueryable<Student> students = context.Students.AsNoTracking();
 
@@ -66,7 +66,7 @@ internal class ConsoleHostedService : BackgroundService
                 {
                     new() { EqualTo = 1 },
                     new() { EqualTo = 2 },
-                }
+                },
             },
 
             Name = new StringSearchCriteria
@@ -75,9 +75,30 @@ internal class ConsoleHostedService : BackgroundService
             },
         };
 
-        IQueryable<Student> query = students.Where(c);
+        var d = new OrAggregateValueSearchCriteria<StudentSearchCriteria, Student>
+        {
+            Criteria = new[]
+            {
+                c,
+                new StudentSearchCriteria
+                {
+                    Name = new StringSearchCriteria { StartsWith = "1" },
+                },
+            },
+        };
 
-        return query.ToList();
+        IEnumerable<Student>? result = null;
+
+        try
+        {
+            result = students.Where(d).ToList();
+        }
+        catch (Exception e)
+        {
+            this.logger.LogError(e, ConsoleHostedService.MessageTemplate, nameof(this.SearchStudents), e.Message);
+        }
+
+        return result ?? Enumerable.Empty<Student>();
     }
 
     private static IAsyncEnumerable<Student> GetStudentsAsync(SchoolContext context)

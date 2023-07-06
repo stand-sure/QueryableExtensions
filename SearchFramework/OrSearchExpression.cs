@@ -11,8 +11,8 @@ public class OrSearchExpression<T> : ISearchExpression
             return Expression.Constant(false);
         }
 
-        return this.Expressions.Aggregate((Expression)Expression.Constant(false),
-            (agg, next) => Expression.OrElse(agg, (next as ISearchExpression).GetExpression(memberExpression)));
+        return this.Expressions.Select(e => (e as ISearchExpression).GetExpression(memberExpression)).Aggregate(
+            (agg, next) => Expression.OrElse(agg, (next)));
     }
 
     public IEnumerable<ComparableSearchExpression<T>>? Expressions { get; init; }

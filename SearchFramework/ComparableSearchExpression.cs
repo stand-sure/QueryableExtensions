@@ -22,10 +22,10 @@ public class ComparableSearchExpression<TMember> : ISearchExpression
 
         searchExpressions = searchExpressions.ToList();
 
-        Expression result = searchExpressions.Select(s => s.expression).Aggregate((Expression)Expression.Constant(true),
-            (agg, next) => Expression.AndAlso(agg, next.GetExpression(memberExpression)));
+        Expression result = searchExpressions.Select(s => s.expression.GetExpression(memberExpression))
+            .Aggregate((agg, next) => Expression.AndAlso(agg, next));
 
-        return result;
+        return result.Reduce();
     }
 
     internal AndSearchExpression<TMember>? AndSearchExpression { [UsedImplicitly] get; init; }

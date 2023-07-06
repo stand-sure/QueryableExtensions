@@ -33,12 +33,17 @@ public abstract class SearchCriteriaBase<TSource>
         {
             MemberExpression sourceProperty = Expression.Property(sourceParameter, name);
 
-            Expression sourcePredicate = searchExpression.GetExpression(sourceProperty);
+            Expression sourcePredicate = searchExpression.GetExpression(sourceProperty).Reduce();
+
+            if (sourcePredicate is ConstantExpression { Value: true })
+            {
+                continue;
+            }
 
             sourcePredicateLambdas.Add(sourcePredicate);
         }
 
-        Expression intersectionExpression = sourcePredicateLambdas.Aggregate((Expression)Expression.Constant(true), Expression.AndAlso);
+        Expression intersectionExpression = sourcePredicateLambdas.Aggregate(Expression.AndAlso).Reduce();
 
         Expression<Func<TSource, bool>> result = Expression.Lambda<Func<TSource, bool>>(intersectionExpression, sourceParameter);
 
