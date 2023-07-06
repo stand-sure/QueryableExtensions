@@ -4,6 +4,11 @@ using System.Linq.Expressions;
 
 public abstract class SearchCriteriaBase<TSource>
 {
+    public static implicit operator Expression<Func<TSource, bool>>(SearchCriteriaBase<TSource> searchCriteria)
+    {
+        return searchCriteria.GetPredicate();
+    }
+
     private Expression<Func<TSource, bool>> GetPredicate()
     {
         IEnumerable<(string name, ISearchExpression expression)> searchExpressions =
@@ -29,19 +34,14 @@ public abstract class SearchCriteriaBase<TSource>
             MemberExpression sourceProperty = Expression.Property(sourceParameter, name);
 
             Expression sourcePredicate = searchExpression.GetExpression(sourceProperty);
-            
+
             sourcePredicateLambdas.Add(sourcePredicate);
         }
 
-        Expression intersectionExpression = sourcePredicateLambdas.Aggregate((Expression)(Expression.Constant(true)), Expression.AndAlso);
+        Expression intersectionExpression = sourcePredicateLambdas.Aggregate((Expression)Expression.Constant(true), Expression.AndAlso);
 
         Expression<Func<TSource, bool>> result = Expression.Lambda<Func<TSource, bool>>(intersectionExpression, sourceParameter);
-        
-        return result;
-    }
 
-    public static implicit operator Expression<Func<TSource, bool>>(SearchCriteriaBase<TSource> searchCriteria)
-    {
-        return searchCriteria.GetPredicate();
+        return result;
     }
 }
