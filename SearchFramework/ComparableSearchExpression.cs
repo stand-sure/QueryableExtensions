@@ -23,6 +23,8 @@ public class ComparableSearchExpression<TMember> : ISearchExpression
     internal InSearchExpression<TMember>? InSearchExpression { [UsedImplicitly] get; init; }
     
     internal NotInSearchExpression<TMember>? NotInSearchExpression { [UsedImplicitly] get; init; }
+    
+    internal AndSearchExpression<TMember>? AndSearchExpression { [UsedImplicitly] get; init; }
 
     [SuppressMessage("Major Code Smell",
         "S3011:Reflection should not be used to increase accessibility of classes, methods, or fields",
