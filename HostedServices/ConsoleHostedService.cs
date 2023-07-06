@@ -1,7 +1,5 @@
 namespace ConsoleEF.HostedServices;
 
-using System.Linq.Expressions;
-
 using ConsoleEF.Data;
 using ConsoleEF.QueryableExtensions;
 using ConsoleEF.SearchFramework;
@@ -65,6 +63,11 @@ internal class ConsoleHostedService : BackgroundService
             StudentId = new ValueSearchCriteria<int>
             {
                 NotIn = new SearchValues<int> { Values = new[] { 1, 2 } },
+            },
+
+            Name = new StringSearchCriteria
+            {
+                Contains = new SearchValue<string> { Value = "7a3" },
             },
         };
 

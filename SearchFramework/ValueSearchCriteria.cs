@@ -1,5 +1,25 @@
 namespace ConsoleEF.SearchFramework;
 
+public class StringSearchCriteria : StringSearchExpression
+{
+    private readonly SearchValue<string> contains;
+
+    public SearchValue<string> Contains
+    {
+        get => this.contains;
+
+        init
+        {
+            this.contains = value;
+
+            if (this.contains is not null)
+            {
+                this.StringContainsExpression = this.contains;
+            }
+        }
+    }
+}
+
 public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparableSearchCriteria<T>
 {
     private readonly SearchValue<T>? equalTo;

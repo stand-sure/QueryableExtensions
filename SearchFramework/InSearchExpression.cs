@@ -5,7 +5,7 @@ using System.Reflection;
 
 public class InSearchExpression<TSource> : ISearchExpression
 {
-    public IEnumerable<TSource?>? Values { get; set; }
+    public IEnumerable<TSource?>? Values { get; init; }
 
     Expression ISearchExpression.GetExpression(MemberExpression memberExpression)
     {
