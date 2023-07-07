@@ -2,28 +2,31 @@
 
 namespace SearchFramework.SearchCriteria;
 
+using System.Text.Json.Serialization;
+
 using JetBrains.Annotations;
 
+using SearchFramework.JsonConverters;
 using SearchFramework.TypeSearchExpressions;
 
 [PublicAPI]
 public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparableSearchCriteria<T>
 {
-    private readonly IEnumerable<ValueSearchCriteria<T>>? and;
-    private readonly SearchValue<T>? equalTo;
-    private readonly SearchValue<T>? greaterThan;
-    private readonly SearchValue<T>? greaterThanOrEqualTo;
-    private readonly SearchValues<T>? @in;
-    private readonly SearchValue<T>? lessThan;
-    private readonly SearchValue<T>? lessThanOrEqualTo;
-    private readonly SearchValue<T>? notEqualTo;
-    private readonly SearchValues<T>? notIn;
-    private readonly IEnumerable<ValueSearchCriteria<T>>? or;
+    private IEnumerable<ValueSearchCriteria<T>>? and;
+    private SearchValue<T>? equalTo;
+    private SearchValue<T>? greaterThan;
+    private SearchValue<T>? greaterThanOrEqualTo;
+    private SearchValues<T>? @in;
+    private SearchValue<T>? lessThan;
+    private SearchValue<T>? lessThanOrEqualTo;
+    private SearchValue<T>? notEqualTo;
+    private SearchValues<T>? notIn;
+    private IEnumerable<ValueSearchCriteria<T>>? or;
 
     public SearchValue<T>? EqualTo
     {
         get => this.equalTo;
-        init
+        set
         {
             this.equalTo = value;
 
@@ -37,7 +40,7 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
     public SearchValue<T>? NotEqualTo
     {
         get => this.notEqualTo;
-        init
+        set
         {
             this.notEqualTo = value;
 
@@ -51,7 +54,7 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
     public SearchValue<T>? GreaterThan
     {
         get => this.greaterThan;
-        init
+        set
         {
             this.greaterThan = value;
 
@@ -65,7 +68,7 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
     public SearchValue<T>? GreaterThanOrEqualTo
     {
         get => this.greaterThanOrEqualTo;
-        init
+        set
         {
             this.greaterThanOrEqualTo = value;
 
@@ -79,7 +82,7 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
     public SearchValue<T>? LessThan
     {
         get => this.lessThan;
-        init
+        set
         {
             this.lessThan = value;
 
@@ -93,7 +96,7 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
     public SearchValue<T>? LessThanOrEqualTo
     {
         get => this.lessThanOrEqualTo;
-        init
+        set
         {
             this.lessThanOrEqualTo = value;
 
@@ -107,7 +110,7 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
     public IEnumerable<ValueSearchCriteria<T>>? And
     {
         get => this.and;
-        init
+        set
         {
             this.and = value?.ToList();
 
@@ -122,7 +125,7 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
     {
         get => this.@in;
 
-        init
+        set
         {
             this.@in = value;
 
@@ -137,7 +140,7 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
     {
         get => this.notIn;
 
-        init
+        set
         {
             this.notIn = value;
 
@@ -151,7 +154,7 @@ public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparable
     public IEnumerable<ValueSearchCriteria<T>>? Or
     {
         get => this.or;
-        init
+        set
         {
             this.or = value?.ToList();
 

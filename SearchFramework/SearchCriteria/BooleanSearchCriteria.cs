@@ -1,8 +1,15 @@
 #nullable enable
 namespace SearchFramework.SearchCriteria;
 
+using System.Text.Json.Serialization;
+
+using JetBrains.Annotations;
+
+using SearchFramework.JsonConverters;
 using SearchFramework.TypeSearchExpressions;
 
+[PublicAPI]
+[JsonConverter(typeof(BooleanSearchCriteriaJsonConverter))]
 public class BooleanSearchCriteria : ComparableSearchExpression<bool>
 {
     private readonly SearchValue<bool>? @value;

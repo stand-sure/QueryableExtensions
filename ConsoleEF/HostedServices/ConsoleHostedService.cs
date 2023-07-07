@@ -1,5 +1,8 @@
 namespace ConsoleEF.HostedServices;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 using ConsoleEF.Data;
 using ConsoleEF.QueryableExtensions;
 
@@ -127,6 +130,7 @@ internal class ConsoleHostedService : BackgroundService
     private IAsyncEnumerable<Student> SearchStudents(SchoolContext context)
     {
         IQueryable<Student> students = context.Students.AsNoTracking();
+        var options = new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
         StudentSearchCriteria studentSearchCriteria0 = new()
         {
@@ -137,6 +141,11 @@ internal class ConsoleHostedService : BackgroundService
                 NotEqualTo = 2,
             },
         };
+
+        this.logger.LogInformation(ConsoleHostedService.MessageTemplate,
+            nameof(studentSearchCriteria0),
+            JsonSerializer.Serialize(studentSearchCriteria0, options));
+        //  {"StudentId":{"EqualTo":1,"NotEqualTo":2}}
 
         // effectively the same as studentSearchCriteria0, the `new()` is just a test to confirm that an empty criteria doesn't blow up
         StudentSearchCriteria studentSearchCriteria1 = new()
@@ -152,15 +161,26 @@ internal class ConsoleHostedService : BackgroundService
             },
         };
 
+        this.logger.LogInformation(ConsoleHostedService.MessageTemplate,
+            nameof(studentSearchCriteria1),
+            JsonSerializer.Serialize(studentSearchCriteria1, options));
+        // {"StudentId":{"And":[{"EqualTo":1},{"NotEqualTo":2},{}]}}
+
         StudentSearchCriteria studentSearchCriteria2 = new()
         {
             Name = new StringSearchCriteria { StartsWith = "7" },
         };
+        
+        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(studentSearchCriteria2), JsonSerializer.Serialize(studentSearchCriteria2, options));
+        // {"Name":{}} TODO
 
         StudentSearchCriteria studentSearchCriteria3 = new()
         {
             IsEnrolled = false,
         };
+        
+        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(studentSearchCriteria3), JsonSerializer.Serialize(studentSearchCriteria3, options));
+        // {"IsEnrolled":false}
 
         AndAggregateValueSearchCriteria<StudentSearchCriteria, Student> aggregateSearchCriteria = new()
         {
@@ -172,6 +192,9 @@ internal class ConsoleHostedService : BackgroundService
                 studentSearchCriteria3,
             },
         };
+        
+        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(aggregateSearchCriteria), JsonSerializer.Serialize(aggregateSearchCriteria, options));
+        // {"Criteria":[{"StudentId":{"EqualTo":1,"NotEqualTo":2}},{"StudentId":{"And":[{"EqualTo":1},{"NotEqualTo":2},{}]}},{"Name":{}},{"IsEnrolled":false}]}
 
         IAsyncEnumerable<Student>? result = null;
 

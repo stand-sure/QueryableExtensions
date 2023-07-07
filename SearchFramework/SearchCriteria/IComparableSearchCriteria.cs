@@ -7,11 +7,11 @@ using JetBrains.Annotations;
 [PublicAPI]
 internal interface IComparableSearchCriteria<T>
 {
-    public SearchValue<T>? EqualTo { get; init; }
-    public SearchValue<T>? GreaterThan { get; init; }
-    public SearchValue<T>? GreaterThanOrEqualTo { get; init; }
-    public SearchValue<T>? LessThan { get; init; }
-    public SearchValue<T>? LessThanOrEqualTo { get; init; }
+    public SearchValue<T>? EqualTo { get; set; }
+    public SearchValue<T>? GreaterThan { get; set; }
+    public SearchValue<T>? GreaterThanOrEqualTo { get; set; }
+    public SearchValue<T>? LessThan { get; set; }
+    public SearchValue<T>? LessThanOrEqualTo { get; set; }
 
-    public SearchValue<T>? NotEqualTo { get; init; }
+    public SearchValue<T>? NotEqualTo { get; set; }
 }

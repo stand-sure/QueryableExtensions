@@ -5,12 +5,16 @@ namespace SearchFramework.TypeSearchExpressions;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 using SearchFramework.PropertySearchExpressions;
 
 using JetBrains.Annotations;
 
+using SearchFramework.JsonConverters;
+
 [PublicAPI]
+[JsonConverter(typeof(ComparableSearchExpressionJsonConverter))]
 public class ComparableSearchExpression<TMember> : ISearchExpression
 {
     [SuppressMessage("Major Code Smell",
@@ -38,22 +42,22 @@ public class ComparableSearchExpression<TMember> : ISearchExpression
         return result.Reduce();
     }
 
-    internal AndSearchExpression<TMember>? AndSearchExpression { [UsedImplicitly] get; init; }
-    internal EqualToSearchExpression<TMember>? EqualToSearchExpression { [UsedImplicitly] get; init; }
+    internal AndSearchExpression<TMember>? AndSearchExpression { [UsedImplicitly] get; set; }
+    internal EqualToSearchExpression<TMember>? EqualToSearchExpression { [UsedImplicitly] get; set; }
 
-    internal GreaterThanOrEqualToSearchExpression<TMember>? GreaterThanOrEqualToSearchExpression { [UsedImplicitly] get; init; }
+    internal GreaterThanOrEqualToSearchExpression<TMember>? GreaterThanOrEqualToSearchExpression { [UsedImplicitly] get; set; }
 
-    internal GreaterThanSearchExpression<TMember>? GreaterThanSearchExpression { [UsedImplicitly] get; init; }
+    internal GreaterThanSearchExpression<TMember>? GreaterThanSearchExpression { [UsedImplicitly] get; set; }
 
-    internal InSearchExpression<TMember>? InSearchExpression { [UsedImplicitly] get; init; }
+    internal InSearchExpression<TMember>? InSearchExpression { [UsedImplicitly] get; set; }
 
-    internal LessThanOrEqualToSearchExpression<TMember>? LessThanOrEqualToSearchExpression { [UsedImplicitly] get; init; }
+    internal LessThanOrEqualToSearchExpression<TMember>? LessThanOrEqualToSearchExpression { [UsedImplicitly] get; set; }
 
-    internal LessThanSearchExpression<TMember>? LessThanSearchExpression { [UsedImplicitly] get; init; }
+    internal LessThanSearchExpression<TMember>? LessThanSearchExpression { [UsedImplicitly] get; set; }
 
-    internal NotEqualToSearchExpression<TMember>? NotEqualToSearchExpression { [UsedImplicitly] get; init; }
+    internal NotEqualToSearchExpression<TMember>? NotEqualToSearchExpression { [UsedImplicitly] get; set; }
 
-    internal NotInSearchExpression<TMember>? NotInSearchExpression { [UsedImplicitly] get; init; }
+    internal NotInSearchExpression<TMember>? NotInSearchExpression { [UsedImplicitly] get; set; }
 
-    internal OrSearchExpression<TMember>? OrSearchExpression { [UsedImplicitly] get; init; }
+    internal OrSearchExpression<TMember>? OrSearchExpression { [UsedImplicitly] get; set; }
 }
