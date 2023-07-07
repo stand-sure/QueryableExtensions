@@ -2,11 +2,8 @@
 
 namespace SearchFramework.SearchCriteria;
 
-using System.Text.Json.Serialization;
-
 using JetBrains.Annotations;
 
-using SearchFramework.JsonConverters;
 using SearchFramework.TypeSearchExpressions;
 
 [PublicAPI]
