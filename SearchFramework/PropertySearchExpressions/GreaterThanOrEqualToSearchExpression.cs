@@ -6,7 +6,7 @@ using ConsoleEF.SearchFramework.SearchCriteria;
 
 public class GreaterThanOrEqualToSearchExpression<TMember> : ISearchExpression
 {
-    public TMember? Value { get; set; }
+    public TMember? Value { get; init; }
 
     Expression ISearchExpression.GetExpression(MemberExpression memberExpression)
     {

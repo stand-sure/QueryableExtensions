@@ -11,7 +11,7 @@ public class InSearchExpression<TSource> : ISearchExpression
 
     Expression ISearchExpression.GetExpression(MemberExpression memberExpression)
     {
-        MethodInfo method = typeof(Enumerable).GetMethods().First(m => m.Name == "Contains" && m.GetParameters().Count() == 2).MakeGenericMethod(typeof(TSource));
+        MethodInfo method = typeof(Enumerable).GetMethods().First(m => m.Name == "Contains" && m.GetParameters().Length == 2).MakeGenericMethod(typeof(TSource));
 
         ConstantExpression constant = Expression.Constant(this.Values);
         MethodCallExpression methodCall = Expression.Call(null, method, constant, memberExpression);
@@ -19,7 +19,7 @@ public class InSearchExpression<TSource> : ISearchExpression
         return methodCall;
     }
 
-    public static implicit operator InSearchExpression<TSource>?(SearchValues<TSource> searchValues)
+    public static implicit operator InSearchExpression<TSource>(SearchValues<TSource> searchValues)
     {
         return new InSearchExpression<TSource> { Values = searchValues.Values };
     }

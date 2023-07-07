@@ -2,21 +2,19 @@ namespace ConsoleEF.SearchFramework.SearchCriteria.Aggregate;
 
 using System.Linq.Expressions;
 
-using ConsoleEF.SearchFramework.SearchCriteria;
-
-public class OrAggregateValueSearchCriteria<TSearchCriteria, TSource>
+public class AndAggregateValueSearchCriteria<TSearchCriteria, TSource>
     where TSearchCriteria : SearchCriteriaBase<TSource>
 {
     public IEnumerable<TSearchCriteria>? Criteria { get; init; }
 
-    public static implicit operator Expression<Func<TSource, bool>>(OrAggregateValueSearchCriteria<TSearchCriteria, TSource> searchCriteria)
+    public static implicit operator Expression<Func<TSource, bool>>(AndAggregateValueSearchCriteria<TSearchCriteria, TSource> searchCriteria)
     {
         return searchCriteria.GetPredicate();
     }
 
-    public static implicit operator OrAggregateValueSearchCriteria<TSearchCriteria, TSource>(TSearchCriteria[] criteria)
+    public static implicit operator AndAggregateValueSearchCriteria<TSearchCriteria, TSource>(TSearchCriteria[] criteria)
     {
-        return new OrAggregateValueSearchCriteria<TSearchCriteria, TSource> { Criteria = criteria };
+        return new AndAggregateValueSearchCriteria<TSearchCriteria, TSource> { Criteria = criteria };
     }
 
     private Expression<Func<TSource, bool>> GetPredicate()
@@ -31,7 +29,7 @@ public class OrAggregateValueSearchCriteria<TSearchCriteria, TSource>
         IEnumerable<Expression<Func<TSource, bool>>> lambdas = this.GetExpressionsAndReplaceParameter(parameter);
 
         Expression union = lambdas.Select(expression => expression.Body)
-            .Aggregate((agg, next) => Expression.OrElse(agg, next).Reduce());
+            .Aggregate((agg, next) => Expression.AndAlso(agg, next).Reduce());
 
         return Expression.Lambda<Func<TSource, bool>>(union, parameter);
     }

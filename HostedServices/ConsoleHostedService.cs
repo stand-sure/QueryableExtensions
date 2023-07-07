@@ -70,22 +70,17 @@ internal class ConsoleHostedService : BackgroundService
                     new() { EqualTo = 2 },
                 },
             },
-
-            Name = new StringSearchCriteria
-            {
-                EndsWith = "7",
-            },
         };
 
-        var d = new OrAggregateValueSearchCriteria<StudentSearchCriteria, Student>
+        var d = new AndAggregateValueSearchCriteria<StudentSearchCriteria, Student>
         {
-            Criteria = new[]
+            Criteria = new StudentSearchCriteria[]
             {
-                c,
-                new StudentSearchCriteria
-                {
-                    Name = new StringSearchCriteria { StartsWith = "1" },
-                },
+                // c,
+                // new StudentSearchCriteria
+                // {
+                //     Name = new StringSearchCriteria { StartsWith = "7" },
+                // },
             },
         };
 

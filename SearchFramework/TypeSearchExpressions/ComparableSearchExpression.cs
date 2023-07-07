@@ -25,7 +25,7 @@ public class ComparableSearchExpression<TMember> : ISearchExpression
         searchExpressions = searchExpressions.ToList();
 
         Expression result = searchExpressions.Select(s => s.expression.GetExpression(memberExpression))
-            .Aggregate((agg, next) => Expression.AndAlso(agg, next));
+            .Aggregate(Expression.AndAlso);
 
         return result.Reduce();
     }
