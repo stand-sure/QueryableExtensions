@@ -7,7 +7,7 @@ using ConsoleEF.SearchFramework.SearchCriteria;
 
 public class InSearchExpression<TSource> : ISearchExpression
 {
-    public IEnumerable<TSource?>? Values { get; init; }
+    private IEnumerable<TSource?>? Values { get; init; }
 
     Expression ISearchExpression.GetExpression(MemberExpression memberExpression)
     {

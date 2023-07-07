@@ -46,5 +46,6 @@ public class ComparableSearchExpression<TMember> : ISearchExpression
     internal NotEqualToSearchExpression<TMember>? NotEqualToSearchExpression { [UsedImplicitly] get; init; }
 
     internal NotInSearchExpression<TMember>? NotInSearchExpression { [UsedImplicitly] get; init; }
+    
     internal OrSearchExpression<TMember>? OrSearchExpression { [UsedImplicitly] get; init; }
 }

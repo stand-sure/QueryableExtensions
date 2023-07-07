@@ -17,7 +17,7 @@ public class OrSearchExpression<T> : ISearchExpression
             Expression.OrElse);
     }
 
-    public IEnumerable<ComparableSearchExpression<T>>? Expressions { get; init; }
+    private IEnumerable<ComparableSearchExpression<T>>? Expressions { get; init; }
 
     public static implicit operator OrSearchExpression<T>(ComparableSearchExpression<T>[] clauses)
     {

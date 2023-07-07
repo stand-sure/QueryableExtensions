@@ -17,7 +17,7 @@ public class AndSearchExpression<T> : ISearchExpression
             (agg, next) => Expression.AndAlso(agg, (next as ISearchExpression).GetExpression(memberExpression)));
     }
 
-    public IEnumerable<ComparableSearchExpression<T>>? Expressions { get; init; }
+    private IEnumerable<ComparableSearchExpression<T>>? Expressions { get; init; }
 
     public static implicit operator AndSearchExpression<T>(ComparableSearchExpression<T>[] clauses)
     {

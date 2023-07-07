@@ -46,65 +46,12 @@ internal class ConsoleHostedService : BackgroundService
             this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
         }
 
-        IEnumerable<Student> foo = this.SearchStudents(context);
-
-        foreach (Student student in foo)
+        await foreach (Student student in this.SearchStudents(context).ConfigureAwait(false))
         {
             this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
         }
 
         this.lifetime.StopApplication();
-    }
-
-    private IEnumerable<Student> SearchStudents(SchoolContext context)
-    {
-        IQueryable<Student> students = context.Students.AsNoTracking();
-
-        var c = new StudentSearchCriteria()
-        {
-            StudentId = new ValueSearchCriteria<int>
-            {
-                Or = new ValueSearchCriteria<int>[]
-                {
-                    new() { EqualTo = 1 },
-                    new() { EqualTo = 2 },
-                },
-            },
-        };
-
-        var d = new AndAggregateValueSearchCriteria<StudentSearchCriteria, Student>
-        {
-            Criteria = new StudentSearchCriteria[]
-            {
-                // c,
-                // new StudentSearchCriteria
-                // {
-                //     Name = new StringSearchCriteria { StartsWith = "7" },
-                // },
-            },
-        };
-
-        IEnumerable<Student>? result = null;
-
-        try
-        {
-            result = students.Where(d).ToList();
-        }
-        catch (Exception e)
-        {
-            this.logger.LogError(e, ConsoleHostedService.MessageTemplate, nameof(this.SearchStudents), e.Message);
-        }
-
-        return result ?? Enumerable.Empty<Student>();
-    }
-
-    private static IAsyncEnumerable<Student> GetStudentsAsync(SchoolContext context)
-    {
-        IQueryable<Student> students = context.Students.AsNoTracking();
-
-        IQueryable<Student> query = students.OrderByEnumKeyDescendingNullsFirst(s => s.FavoriteColor).ThenBy(s => s.StudentId);
-
-        return query.AsAsyncEnumerable();
     }
 
     private static async Task CreateSomeCoursesAsync(SchoolContext context, CancellationToken stoppingToken)
@@ -141,6 +88,15 @@ internal class ConsoleHostedService : BackgroundService
         await MakeSomeStudentsAsync(context, stoppingToken).ConfigureAwait(false);
     }
 
+    private static IAsyncEnumerable<Student> GetStudentsAsync(SchoolContext context)
+    {
+        IQueryable<Student> students = context.Students.AsNoTracking();
+
+        IQueryable<Student> query = students.OrderByEnumKeyDescendingNullsFirst(s => s.FavoriteColor).ThenBy(s => s.StudentId);
+
+        return query.AsAsyncEnumerable();
+    }
+
     private static Course MakeCourse()
     {
         return new Course
@@ -165,6 +121,56 @@ internal class ConsoleHostedService : BackgroundService
 
     private static Student MakeStudent(FavoriteColor? favoriteColor)
     {
-        return new Student() { Name = Guid.NewGuid().ToString("N"), FavoriteColor = favoriteColor };
+        return new Student { Name = Guid.NewGuid().ToString("N"), FavoriteColor = favoriteColor };
+    }
+
+    private IAsyncEnumerable<Student> SearchStudents(SchoolContext context)
+    {
+        IQueryable<Student> students = context.Students.AsNoTracking();
+
+        StudentSearchCriteria studentSearchCriteria1 = new()
+        {
+            StudentId = new ValueSearchCriteria<int>
+            {
+                Or = new ValueSearchCriteria<int>[]
+                {
+                    new() { EqualTo = 1, },
+                    new() { EqualTo = 2 },
+                },
+            },
+        };
+
+        StudentSearchCriteria studentSearchCriteria2 = new()
+        {
+            Name = new StringSearchCriteria { StartsWith = "7" },
+        };
+
+        AndAggregateValueSearchCriteria<StudentSearchCriteria, Student> aggregateSearchCriteria = new()
+        {
+            Criteria = new[]
+            {
+                studentSearchCriteria1,
+                studentSearchCriteria2,
+            },
+        };
+
+        IAsyncEnumerable<Student>? result = null;
+
+        try
+        {
+            result = students.Where(aggregateSearchCriteria).AsAsyncEnumerable();
+        }
+        catch (Exception e)
+        {
+            this.logger.LogError(e, ConsoleHostedService.MessageTemplate, nameof(this.SearchStudents), e.Message);
+        }
+
+        return result ?? Empty<Student>();
+    }
+
+    private static async IAsyncEnumerable<T> Empty<T>()
+    {
+        await Task.Yield();
+        yield break;
     }
 }

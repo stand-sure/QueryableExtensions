@@ -7,7 +7,7 @@ using ConsoleEF.SearchFramework.SearchCriteria;
 
 public class StringEndsWithSearchExpression : ISearchExpression
 {
-    public string? Value { get; init; } = string.Empty;
+    private string? Value { get; init; } = string.Empty;
 
     Expression ISearchExpression.GetExpression(MemberExpression memberExpression)
     {
