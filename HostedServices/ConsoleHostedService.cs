@@ -3,6 +3,8 @@ namespace ConsoleEF.HostedServices;
 using ConsoleEF.Data;
 using ConsoleEF.QueryableExtensions;
 using ConsoleEF.SearchFramework;
+using ConsoleEF.SearchFramework.SearchCriteria;
+using ConsoleEF.SearchFramework.SearchCriteria.Aggregate;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;

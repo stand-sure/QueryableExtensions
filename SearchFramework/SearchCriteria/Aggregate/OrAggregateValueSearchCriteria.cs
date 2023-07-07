@@ -1,6 +1,8 @@
-namespace ConsoleEF.SearchFramework;
+namespace ConsoleEF.SearchFramework.SearchCriteria.Aggregate;
 
 using System.Linq.Expressions;
+
+using ConsoleEF.SearchFramework.SearchCriteria;
 
 public class OrAggregateValueSearchCriteria<TSearchCriteria, TSource>
     where TSearchCriteria : SearchCriteriaBase<TSource>

@@ -1,6 +1,8 @@
-namespace ConsoleEF.SearchFramework;
+namespace ConsoleEF.SearchFramework.PropertySearchExpressions;
 
 using System.Linq.Expressions;
+
+using ConsoleEF.SearchFramework.SearchCriteria;
 
 public class NotEqualToSearchExpression<TMember> : ISearchExpression
 {

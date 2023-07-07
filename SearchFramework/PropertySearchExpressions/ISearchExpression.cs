@@ -1,4 +1,4 @@
-namespace ConsoleEF.SearchFramework;
+namespace ConsoleEF.SearchFramework.PropertySearchExpressions;
 
 using System.Linq.Expressions;
 

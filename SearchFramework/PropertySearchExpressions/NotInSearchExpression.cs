@@ -1,7 +1,9 @@
-namespace ConsoleEF.SearchFramework;
+namespace ConsoleEF.SearchFramework.PropertySearchExpressions;
 
 using System.Linq.Expressions;
 using System.Reflection;
+
+using ConsoleEF.SearchFramework.SearchCriteria;
 
 public class NotInSearchExpression<TSource> : ISearchExpression
 {

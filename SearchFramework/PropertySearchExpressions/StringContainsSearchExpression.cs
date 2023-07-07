@@ -1,9 +1,11 @@
-namespace ConsoleEF.SearchFramework;
+namespace ConsoleEF.SearchFramework.PropertySearchExpressions;
 
 using System.Linq.Expressions;
 using System.Reflection;
 
-public class StringContainsExpression : ISearchExpression
+using ConsoleEF.SearchFramework.SearchCriteria;
+
+public class StringContainsSearchExpression : ISearchExpression
 {
     public string? Value { get; init; } = string.Empty;
 
@@ -17,8 +19,8 @@ public class StringContainsExpression : ISearchExpression
         return methodCall;
     }
 
-    public static implicit operator StringContainsExpression(SearchValue<string> searchValue)
+    public static implicit operator StringContainsSearchExpression(SearchValue<string> searchValue)
     {
-        return new StringContainsExpression { Value = searchValue.Value };
+        return new StringContainsSearchExpression { Value = searchValue.Value };
     }
 }

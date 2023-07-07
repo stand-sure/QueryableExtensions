@@ -1,9 +1,11 @@
-namespace ConsoleEF.SearchFramework;
+namespace ConsoleEF.SearchFramework.PropertySearchExpressions;
 
 using System.Linq.Expressions;
 using System.Reflection;
 
-public class StringEndsWithExpression : ISearchExpression
+using ConsoleEF.SearchFramework.SearchCriteria;
+
+public class StringEndsWithSearchExpression : ISearchExpression
 {
     public string? Value { get; init; } = string.Empty;
 
@@ -17,8 +19,8 @@ public class StringEndsWithExpression : ISearchExpression
         return methodCall;
     }
 
-    public static implicit operator StringEndsWithExpression(SearchValue<string> searchValue)
+    public static implicit operator StringEndsWithSearchExpression(SearchValue<string> searchValue)
     {
-        return new StringEndsWithExpression { Value = searchValue.Value };
+        return new StringEndsWithSearchExpression { Value = searchValue.Value };
     }
 }

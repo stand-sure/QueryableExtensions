@@ -1,8 +1,10 @@
-namespace ConsoleEF.SearchFramework;
+namespace ConsoleEF.SearchFramework.TypeSearchExpressions;
 
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
+
+using ConsoleEF.SearchFramework.PropertySearchExpressions;
 
 using JetBrains.Annotations;
 

@@ -1,4 +1,4 @@
-namespace ConsoleEF.SearchFramework;
+namespace ConsoleEF.SearchFramework.SearchCriteria;
 
 public interface IComparableSearchCriteria<T>
 {

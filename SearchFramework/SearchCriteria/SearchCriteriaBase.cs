@@ -1,6 +1,8 @@
-namespace ConsoleEF.SearchFramework;
+namespace ConsoleEF.SearchFramework.SearchCriteria;
 
 using System.Linq.Expressions;
+
+using ConsoleEF.SearchFramework.PropertySearchExpressions;
 
 public abstract class SearchCriteriaBase<TSource>
 {

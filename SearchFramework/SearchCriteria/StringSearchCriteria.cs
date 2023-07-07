@@ -1,4 +1,6 @@
-namespace ConsoleEF.SearchFramework;
+namespace ConsoleEF.SearchFramework.SearchCriteria;
+
+using ConsoleEF.SearchFramework.TypeSearchExpressions;
 
 public class StringSearchCriteria : StringSearchExpression
 {

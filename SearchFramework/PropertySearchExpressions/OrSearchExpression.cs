@@ -1,6 +1,8 @@
-namespace ConsoleEF.SearchFramework;
+namespace ConsoleEF.SearchFramework.PropertySearchExpressions;
 
 using System.Linq.Expressions;
+
+using ConsoleEF.SearchFramework.TypeSearchExpressions;
 
 public class OrSearchExpression<T> : ISearchExpression
 {

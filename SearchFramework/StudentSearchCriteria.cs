@@ -1,6 +1,8 @@
 namespace ConsoleEF.SearchFramework;
 
 using ConsoleEF.Data;
+using ConsoleEF.SearchFramework.SearchCriteria;
+using ConsoleEF.SearchFramework.TypeSearchExpressions;
 
 public class StudentSearchCriteria : SearchCriteriaBase<Student>
 {
