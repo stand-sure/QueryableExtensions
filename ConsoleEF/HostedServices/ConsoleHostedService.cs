@@ -2,13 +2,13 @@ namespace ConsoleEF.HostedServices;
 
 using ConsoleEF.Data;
 using ConsoleEF.QueryableExtensions;
-using ConsoleEF.SearchFramework;
-using ConsoleEF.SearchFramework.SearchCriteria;
-using ConsoleEF.SearchFramework.SearchCriteria.Aggregate;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
+using SearchFramework.SearchCriteria;
+using SearchFramework.SearchCriteria.Aggregate;
 
 internal class ConsoleHostedService : BackgroundService
 {
@@ -128,14 +128,26 @@ internal class ConsoleHostedService : BackgroundService
     {
         IQueryable<Student> students = context.Students.AsNoTracking();
 
+        StudentSearchCriteria studentSearchCriteria0 = new()
+        {
+            // this is effectively an AND
+            StudentId = new ValueSearchCriteria<int>
+            {
+                EqualTo = 1,
+                NotEqualTo = 2,
+            },
+        };
+
+        // effectively the same as studentSearchCriteria0, the `new()` is just a test to confirm that an empty criteria doesn't blow up
         StudentSearchCriteria studentSearchCriteria1 = new()
         {
             StudentId = new ValueSearchCriteria<int>
             {
-                Or = new ValueSearchCriteria<int>[]
+                And = new ValueSearchCriteria<int>[]
                 {
                     new() { EqualTo = 1, },
-                    new() { EqualTo = 2 },
+                    new() { NotEqualTo = 2 },
+                    new(),
                 },
             },
         };
@@ -145,12 +157,19 @@ internal class ConsoleHostedService : BackgroundService
             Name = new StringSearchCriteria { StartsWith = "7" },
         };
 
+        StudentSearchCriteria studentSearchCriteria3 = new()
+        {
+            IsEnrolled = false,
+        };
+
         AndAggregateValueSearchCriteria<StudentSearchCriteria, Student> aggregateSearchCriteria = new()
         {
             Criteria = new[]
             {
+                studentSearchCriteria0,
                 studentSearchCriteria1,
                 studentSearchCriteria2,
+                studentSearchCriteria3,
             },
         };
 

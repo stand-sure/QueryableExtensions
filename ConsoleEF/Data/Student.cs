@@ -7,6 +7,8 @@ public class Student
     public string? Name { get; set; }
 
     public int StudentId { get; set; }
+    
+    public bool IsEnrolled { get; set; } 
 
     public override string ToString()
     {

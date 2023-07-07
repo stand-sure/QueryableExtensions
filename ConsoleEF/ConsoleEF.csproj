@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+        <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.8" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.8">
             <PrivateAssets>all</PrivateAssets>
@@ -22,7 +22,7 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.4.0.72892">
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="9.5.0.73987">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -30,6 +30,10 @@
 
     <ItemGroup>
         <Folder Include="Migrations\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SearchFramework\SearchFramework.csproj" />
     </ItemGroup>
 
 </Project>
