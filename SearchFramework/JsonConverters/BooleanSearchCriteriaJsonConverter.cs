@@ -10,7 +10,9 @@ public class BooleanSearchCriteriaJsonConverter : JsonConverter<BooleanSearchCri
 {
     public override BooleanSearchCriteria? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        throw new NotImplementedException();
+        bool value = reader.GetBoolean();
+
+        return new BooleanSearchCriteria { Value = value };
     }
 
     public override void Write(Utf8JsonWriter writer, BooleanSearchCriteria value, JsonSerializerOptions options)

@@ -10,13 +10,13 @@ namespace ConsoleEF.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-
+            // generated code
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-
+            // generated code 
         }
     }
 }
