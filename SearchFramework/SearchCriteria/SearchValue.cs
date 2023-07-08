@@ -12,7 +12,7 @@ using SearchFramework.JsonConverters;
 [JsonConverter(typeof(SearchValueJsonConverter))]
 public record SearchValue<TMember>
 {
-    public TMember? Value { get; init; }
+    public TMember? Value { get; set; }
 
     public static implicit operator SearchValue<TMember>(TMember value)
     {
