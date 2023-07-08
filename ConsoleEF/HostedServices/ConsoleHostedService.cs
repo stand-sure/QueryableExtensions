@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 
 using SearchFramework.SearchCriteria;
 using SearchFramework.SearchCriteria.Aggregate;
+using SearchFramework.TypeSearchExpressions;
 
 internal class ConsoleHostedService : BackgroundService
 {
@@ -166,13 +167,19 @@ internal class ConsoleHostedService : BackgroundService
             JsonSerializer.Serialize(studentSearchCriteria1, options));
         // {"StudentId":{"And":[{"EqualTo":1},{"NotEqualTo":2},{}]}}
 
+        var stringSearchCriteria = new StringSearchCriteria
+        {
+            StartsWith = "a",
+        };
+
         StudentSearchCriteria studentSearchCriteria2 = new()
         {
-            Name = new StringSearchCriteria { StartsWith = "7" },
+            Name = stringSearchCriteria,
+            StudentId = new ValueSearchCriteria<int> { GreaterThanOrEqualTo = 2 },
         };
         
         this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(studentSearchCriteria2), JsonSerializer.Serialize(studentSearchCriteria2, options));
-        // {"Name":{}} TODO
+        // {"StudentId":{"GreaterThanOrEqualTo":2},"Name":{"StartsWith":"a"}}
 
         StudentSearchCriteria studentSearchCriteria3 = new()
         {
