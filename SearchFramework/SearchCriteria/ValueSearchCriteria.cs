@@ -10,6 +10,7 @@ using SearchFramework.JsonConverters;
 using SearchFramework.TypeSearchExpressions;
 
 [PublicAPI]
+[JsonConverter(typeof(ComparableSearchExpressionJsonConverter))]
 public class ValueSearchCriteria<T> : ComparableSearchExpression<T>, IComparableSearchCriteria<T>
 {
     private IEnumerable<ValueSearchCriteria<T>>? and;
