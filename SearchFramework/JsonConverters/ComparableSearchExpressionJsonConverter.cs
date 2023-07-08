@@ -6,13 +6,15 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using SearchFramework.SearchCriteria;
 using SearchFramework.TypeSearchExpressions;
 
 public class ComparableSearchExpressionJsonConverter : JsonConverterFactory
 {
     public override bool CanConvert(Type typeToConvert)
     {
-        bool isComparableSearchExpression = typeToConvert.IsGenericType && typeToConvert.GetGenericTypeDefinition() == typeof(ComparableSearchExpression<>);
+        bool isComparableSearchExpression = typeToConvert.IsGenericType && typeToConvert.GetGenericTypeDefinition() == typeof(ComparableSearchExpression<>) ||
+                                            typeToConvert.GetGenericTypeDefinition() == typeof(ValueSearchCriteria<>);
 
         return isComparableSearchExpression;
     }
@@ -31,7 +33,31 @@ public class ComparableSearchExpressionJsonConverter : JsonConverterFactory
     {
         public override ComparableSearchExpression<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            if (reader.TokenType != JsonTokenType.StartObject)
+            {
+                throw new JsonException();
+            }
+
+            var retVal = new ValueSearchCriteria<T>();
+
+            List<PropertyInfo> destProps = retVal.GetType().GetProperties().ToList();
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                {
+                    return retVal;
+                }
+
+                string propName = reader.GetString() ?? string.Empty;
+
+                PropertyInfo? prop = destProps.Single(p => p.Name == propName);
+                Type propType = prop.PropertyType;
+                object? value = JsonSerializer.Deserialize(ref reader, propType, options);
+                prop.SetValue(retVal, value);
+            }
+
+            throw new JsonException();
         }
 
         public override void Write(Utf8JsonWriter writer, ComparableSearchExpression<T> value, JsonSerializerOptions options)
