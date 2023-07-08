@@ -27,7 +27,12 @@ public class SearchValueJsonConverter : JsonConverterFactory
     {
         public override SearchValue<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            var retVal = new SearchValue<T>
+            {
+                Value = (T)JsonSerializer.Deserialize(ref reader, typeof(T), options)!,
+            };
+
+            return retVal;
         }
 
         public override void Write(Utf8JsonWriter writer, SearchValue<T> value, JsonSerializerOptions options)
