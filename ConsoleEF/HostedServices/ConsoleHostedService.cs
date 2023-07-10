@@ -1,7 +1,6 @@
 namespace ConsoleEF.HostedServices;
 
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ConsoleEF.Data;
 using ConsoleEF.QueryableExtensions;
@@ -11,8 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using SearchFramework.SearchCriteria;
-using SearchFramework.SearchCriteria.Aggregate;
-using SearchFramework.TypeSearchExpressions;
+using SearchFramework.SortOrder;
 
 internal class ConsoleHostedService : BackgroundService
 {
@@ -50,7 +48,12 @@ internal class ConsoleHostedService : BackgroundService
             this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
         }
 
-        await foreach (Student student in this.SearchStudents(context).ConfigureAwait(false))
+        await foreach (Student student in SearchStudents(context).ConfigureAwait(false))
+        {
+            this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
+        }
+
+        await foreach (Student student in SearchStudentsJson(context).ConfigureAwait(false))
         {
             this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
         }
@@ -128,98 +131,55 @@ internal class ConsoleHostedService : BackgroundService
         return new Student { Name = Guid.NewGuid().ToString("N"), FavoriteColor = favoriteColor };
     }
 
-    private IAsyncEnumerable<Student> SearchStudents(SchoolContext context)
+    private static IAsyncEnumerable<Student> SearchStudents(SchoolContext context)
     {
         IQueryable<Student> students = context.Students.AsNoTracking();
-        var options = new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
-        StudentSearchCriteria studentSearchCriteria0 = new()
+        StudentSearchCriteria searchCriteria = new()
         {
-            // this is effectively an AND
             StudentId = new ValueSearchCriteria<int>
             {
-                EqualTo = 1,
                 NotEqualTo = 2,
             },
         };
 
-        this.logger.LogInformation(ConsoleHostedService.MessageTemplate,
-            nameof(studentSearchCriteria0),
-            JsonSerializer.Serialize(studentSearchCriteria0, options));
-        //  {"StudentId":{"EqualTo":1,"NotEqualTo":2}}
-
-        // effectively the same as studentSearchCriteria0, the `new()` is just a test to confirm that an empty criteria doesn't blow up
-        StudentSearchCriteria studentSearchCriteria1 = new()
+        var sortOrder0 = new StudentSortOrder
         {
-            StudentId = new ValueSearchCriteria<int>
-            {
-                And = new ValueSearchCriteria<int>[]
-                {
-                    new() { EqualTo = 1, },
-                    new() { NotEqualTo = 2 },
-                    new(),
-                },
-            },
+            StudentId = SortOrderDirection.Descending,
         };
 
-        this.logger.LogInformation(ConsoleHostedService.MessageTemplate,
-            nameof(studentSearchCriteria1),
-            JsonSerializer.Serialize(studentSearchCriteria1, options));
-        // {"StudentId":{"And":[{"EqualTo":1},{"NotEqualTo":2},{}]}}
-
-        var stringSearchCriteria = new StringSearchCriteria
+        var sortOrder1 = new StudentSortOrder
         {
-            StartsWith = "a",
+            Name = SortOrderDirection.Ascending,
         };
 
-        StudentSearchCriteria studentSearchCriteria2 = new()
-        {
-            Name = stringSearchCriteria,
-            StudentId = new ValueSearchCriteria<int> { GreaterThanOrEqualTo = 2 },
-        };
-        
-        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(studentSearchCriteria2), JsonSerializer.Serialize(studentSearchCriteria2, options));
-        // {"StudentId":{"GreaterThanOrEqualTo":2},"Name":{"StartsWith":"a"}}
+        StudentSortOrder[] order = { sortOrder1, sortOrder0 };
 
-        StudentSearchCriteria studentSearchCriteria3 = new()
-        {
-            IsEnrolled = false,
-        };
-        
-        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(studentSearchCriteria3), JsonSerializer.Serialize(studentSearchCriteria3, options));
-        // {"IsEnrolled":false}
+        IAsyncEnumerable<Student> result = students.Where(searchCriteria).ApplySort(order).AsAsyncEnumerable();
 
-        AndAggregateValueSearchCriteria<StudentSearchCriteria, Student> aggregateSearchCriteria = new()
-        {
-            Criteria = new[]
-            {
-                studentSearchCriteria0,
-                studentSearchCriteria1,
-                studentSearchCriteria2,
-                studentSearchCriteria3,
-            },
-        };
-        
-        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(aggregateSearchCriteria), JsonSerializer.Serialize(aggregateSearchCriteria, options));
-        // {"Criteria":[{"StudentId":{"EqualTo":1,"NotEqualTo":2}},{"StudentId":{"And":[{"EqualTo":1},{"NotEqualTo":2},{}]}},{"Name":{}},{"IsEnrolled":false}]}
-
-        IAsyncEnumerable<Student>? result = null;
-
-        try
-        {
-            result = students.Where(aggregateSearchCriteria).AsAsyncEnumerable();
-        }
-        catch (Exception e)
-        {
-            this.logger.LogError(e, ConsoleHostedService.MessageTemplate, nameof(this.SearchStudents), e.Message);
-        }
-
-        return result ?? Empty<Student>();
+        return result;
     }
 
-    private static async IAsyncEnumerable<T> Empty<T>()
+    private static IAsyncEnumerable<Student> SearchStudentsJson(SchoolContext context)
     {
-        await Task.Yield();
-        yield break;
+        IQueryable<Student> students = context.Students.AsNoTracking();
+
+        const string jsonSearchCriteria = @"{""StudentId"":{""GreaterThan"":3}}";
+
+        var searchCriteria = JsonSerializer.Deserialize<StudentSearchCriteria>(jsonSearchCriteria)!;
+
+        const string jsonSortOrder = @"[{""Name"":""Ascending""},{""StudentId"":""Descending""}]";
+
+        var sortOrder = JsonSerializer.Deserialize<IEnumerable<StudentSortOrder>>(jsonSortOrder)!;
+
+        IAsyncEnumerable<Student> result = students.Where(searchCriteria).ApplySort(sortOrder).AsAsyncEnumerable();
+
+        return result;
     }
+
+    ////private static async IAsyncEnumerable<T> Empty<T>()
+    ////{
+    ////    await Task.Yield();
+    ////    yield break;
+    ////}
 }
