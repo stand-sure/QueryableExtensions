@@ -38,19 +38,19 @@ public abstract class SortOrderBase<TSource> : IValidatableObject
         string? name;
         ISortOrderDirective? directive;
 
-        var f = this.Validate(new ValidationContext(this)).ToList();
+        List<ValidationResult> validationResults = this.Validate(new ValidationContext(this)).ToList();
 
-        if (f.Any())
+        if (validationResults.Any())
         {
-            var message = string.Join(null, f.Select(v => v.ErrorMessage));
+            string message = string.Join(null, validationResults.Select(v => v.ErrorMessage));
             throw new ValidationException(message);
         }
 
-        var s = this.GetNonNullSortOrderDirectives().ToList();
+        List<(string Name, ISortOrderDirective Directive)> directives = this.GetNonNullSortOrderDirectives().ToList();
 
-        if (s.Any())
+        if (directives.Any())
         {
-            (name, directive) = s.Single();
+            (name, directive) = directives.Single();
         }
         else
         {
