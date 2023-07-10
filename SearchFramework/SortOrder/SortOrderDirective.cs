@@ -4,9 +4,11 @@ namespace SearchFramework.SortOrder;
 using System.Linq.Expressions;
 using System.Text.Json.Serialization;
 
+using SearchFramework.JsonConverters;
+
+[JsonConverter(typeof(SortOrderDirectiveJsonConverter))]
 public class SortOrderDirective<TProperty> : ISortOrderDirective
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
     public SortOrderDirection Direction { get; set; } = SortOrderDirection.Ascending;
 
     public static implicit operator SortOrderDirective<TProperty>(SortOrderDirection direction)

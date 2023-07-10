@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using SearchFramework.SearchCriteria;
+using SearchFramework.SortOrder;
 
 public class BooleanSearchCriteriaJsonConverter : JsonConverter<BooleanSearchCriteria>
 {

@@ -1,7 +1,6 @@
 namespace ConsoleEF.HostedServices;
 
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ConsoleEF.Data;
 using ConsoleEF.QueryableExtensions;
@@ -49,7 +48,12 @@ internal class ConsoleHostedService : BackgroundService
             this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
         }
 
-        await foreach (Student student in this.SearchStudents(context).ConfigureAwait(false))
+        await foreach (Student student in SearchStudents(context).ConfigureAwait(false))
+        {
+            this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
+        }
+
+        await foreach (Student student in SearchStudentsJson(context).ConfigureAwait(false))
         {
             this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
         }
@@ -127,10 +131,9 @@ internal class ConsoleHostedService : BackgroundService
         return new Student { Name = Guid.NewGuid().ToString("N"), FavoriteColor = favoriteColor };
     }
 
-    private IAsyncEnumerable<Student> SearchStudents(SchoolContext context)
+    private static IAsyncEnumerable<Student> SearchStudents(SchoolContext context)
     {
         IQueryable<Student> students = context.Students.AsNoTracking();
-        var options = new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
         StudentSearchCriteria searchCriteria = new()
         {
@@ -140,38 +143,43 @@ internal class ConsoleHostedService : BackgroundService
             },
         };
 
-        IAsyncEnumerable<Student>? result = null;
-
         var sortOrder0 = new StudentSortOrder
         {
             StudentId = SortOrderDirection.Descending,
         };
-        
+
         var sortOrder1 = new StudentSortOrder
         {
             Name = SortOrderDirection.Ascending,
         };
-        
-        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(searchCriteria), JsonSerializer.Serialize(searchCriteria, options));
 
-        var order = new SortOrderBase<Student>[] { sortOrder1, sortOrder0 };
-        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(sortOrder0), JsonSerializer.Serialize(order, options));
+        StudentSortOrder[] order = { sortOrder1, sortOrder0 };
 
-        try
-        {
-            result = students.Where(searchCriteria).ApplySort(order).AsAsyncEnumerable();
-        }
-        catch (Exception e)
-        {
-            this.logger.LogError(e, ConsoleHostedService.MessageTemplate, nameof(this.SearchStudents), e.Message);
-        }
+        IAsyncEnumerable<Student> result = students.Where(searchCriteria).ApplySort(order).AsAsyncEnumerable();
 
-        return result ?? Empty<Student>();
+        return result;
     }
 
-    private static async IAsyncEnumerable<T> Empty<T>()
+    private static IAsyncEnumerable<Student> SearchStudentsJson(SchoolContext context)
     {
-        await Task.Yield();
-        yield break;
+        IQueryable<Student> students = context.Students.AsNoTracking();
+
+        const string jsonSearchCriteria = @"{""StudentId"":{""GreaterThan"":3}}";
+
+        var searchCriteria = JsonSerializer.Deserialize<StudentSearchCriteria>(jsonSearchCriteria)!;
+
+        const string jsonSortOrder = @"[{""Name"":""Ascending""},{""StudentId"":""Descending""}]";
+
+        var sortOrder = JsonSerializer.Deserialize<IEnumerable<StudentSortOrder>>(jsonSortOrder)!;
+
+        IAsyncEnumerable<Student> result = students.Where(searchCriteria).ApplySort(sortOrder).AsAsyncEnumerable();
+
+        return result;
     }
+
+    ////private static async IAsyncEnumerable<T> Empty<T>()
+    ////{
+    ////    await Task.Yield();
+    ////    yield break;
+    ////}
 }
