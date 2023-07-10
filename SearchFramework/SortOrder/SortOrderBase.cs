@@ -3,35 +3,16 @@
 namespace SearchFramework.SortOrder;
 
 using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
-using System.Reflection;
 
-public abstract class SortOrderBase : IValidatableObject
+public abstract class SortOrderBase<TSource> : IValidatableObject
 {
-    protected abstract (string Name, SortOrderDirection Direction) DefaultSort { get; }
-
-    internal (string Name, SortOrderDirection Direction) Sort
-    {
-        get
-        {
-            PropertyInfo? propertyInfo = this.GetType().GetProperties()
-                .SingleOrDefault(info => info.PropertyType == typeof(SortOrderDirection) && info.GetValue(this) != null);
-
-            string? name = propertyInfo?.Name;
-            SortOrderDirection value = (SortOrderDirection?)propertyInfo?.GetValue(this) ?? SortOrderDirection.Ascending;
-
-            return name is null ? (this.DefaultSort.Name, this.DefaultSort.Direction) : (name, value);
-        }
-    }
+    protected abstract (string Name, ISortOrderDirective Directive) DefaultSort { get; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         var results = new List<ValidationResult>();
 
-        IEnumerable<PropertyInfo> nonNullSortProps =
-            this.GetType().GetProperties().Where(info => info.PropertyType == typeof(SortOrderDirection) && info.GetValue(this) != null);
-
-        int? count = nonNullSortProps.Count();
+        int? count = this.GetNonNullSortOrderDirectives().Count();
 
         if (count > 1)
         {
@@ -41,8 +22,41 @@ public abstract class SortOrderBase : IValidatableObject
         return results;
     }
 
-    public override string ToString()
+    private IEnumerable<(string Name, ISortOrderDirective Directive)> GetNonNullSortOrderDirectives()
     {
-        return $"{this.Sort.Name} {this.Sort.Direction}";
+        IEnumerable<(string Name, ISortOrderDirective Directive)> retVal = from info in this.GetType().GetProperties()
+            where typeof(ISortOrderDirective).IsAssignableFrom(info.PropertyType)
+            let sortOrderDirective = info.GetValue(this) as ISortOrderDirective
+            where sortOrderDirective != null
+            select (info.Name, sortOrderDirective);
+
+        return retVal;
+    }
+
+    public IOrderedQueryable<TSource> Apply(IQueryable<TSource> queryable)
+    {
+        string? name;
+        ISortOrderDirective? directive;
+
+        var f = this.Validate(new ValidationContext(this)).ToList();
+
+        if (f.Any())
+        {
+            var message = string.Join(null, f.Select(v => v.ErrorMessage));
+            throw new ValidationException(message);
+        }
+
+        var s = this.GetNonNullSortOrderDirectives().ToList();
+
+        if (s.Any())
+        {
+            (name, directive) = s.Single();
+        }
+        else
+        {
+            (name, directive) = this.DefaultSort;
+        }
+
+        return directive.Apply(queryable, name);
     }
 }

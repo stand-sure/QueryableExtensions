@@ -11,8 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using SearchFramework.SearchCriteria;
-using SearchFramework.SearchCriteria.Aggregate;
-using SearchFramework.TypeSearchExpressions;
+using SearchFramework.SortOrder;
 
 internal class ConsoleHostedService : BackgroundService
 {
@@ -133,81 +132,34 @@ internal class ConsoleHostedService : BackgroundService
         IQueryable<Student> students = context.Students.AsNoTracking();
         var options = new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
-        StudentSearchCriteria studentSearchCriteria0 = new()
+        StudentSearchCriteria searchCriteria = new()
         {
-            // this is effectively an AND
             StudentId = new ValueSearchCriteria<int>
             {
-                EqualTo = 1,
                 NotEqualTo = 2,
             },
         };
 
-        this.logger.LogInformation(ConsoleHostedService.MessageTemplate,
-            nameof(studentSearchCriteria0),
-            JsonSerializer.Serialize(studentSearchCriteria0, options));
-        //  {"StudentId":{"EqualTo":1,"NotEqualTo":2}}
-
-        // effectively the same as studentSearchCriteria0, the `new()` is just a test to confirm that an empty criteria doesn't blow up
-        StudentSearchCriteria studentSearchCriteria1 = new()
-        {
-            StudentId = new ValueSearchCriteria<int>
-            {
-                And = new ValueSearchCriteria<int>[]
-                {
-                    new() { EqualTo = 1, },
-                    new() { NotEqualTo = 2 },
-                    new(),
-                },
-            },
-        };
-
-        this.logger.LogInformation(ConsoleHostedService.MessageTemplate,
-            nameof(studentSearchCriteria1),
-            JsonSerializer.Serialize(studentSearchCriteria1, options));
-        // {"StudentId":{"And":[{"EqualTo":1},{"NotEqualTo":2},{}]}}
-
-        var stringSearchCriteria = new StringSearchCriteria
-        {
-            StartsWith = "a",
-        };
-
-        StudentSearchCriteria studentSearchCriteria2 = new()
-        {
-            Name = stringSearchCriteria,
-            StudentId = new ValueSearchCriteria<int> { GreaterThanOrEqualTo = 2 },
-        };
-        
-        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(studentSearchCriteria2), JsonSerializer.Serialize(studentSearchCriteria2, options));
-        // {"StudentId":{"GreaterThanOrEqualTo":2},"Name":{"StartsWith":"a"}}
-
-        StudentSearchCriteria studentSearchCriteria3 = new()
-        {
-            IsEnrolled = false,
-        };
-        
-        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(studentSearchCriteria3), JsonSerializer.Serialize(studentSearchCriteria3, options));
-        // {"IsEnrolled":false}
-
-        AndAggregateValueSearchCriteria<StudentSearchCriteria, Student> aggregateSearchCriteria = new()
-        {
-            Criteria = new[]
-            {
-                studentSearchCriteria0,
-                studentSearchCriteria1,
-                studentSearchCriteria2,
-                studentSearchCriteria3,
-            },
-        };
-        
-        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(aggregateSearchCriteria), JsonSerializer.Serialize(aggregateSearchCriteria, options));
-        // {"Criteria":[{"StudentId":{"EqualTo":1,"NotEqualTo":2}},{"StudentId":{"And":[{"EqualTo":1},{"NotEqualTo":2},{}]}},{"Name":{}},{"IsEnrolled":false}]}
-
         IAsyncEnumerable<Student>? result = null;
+
+        var sortOrder0 = new StudentSortOrder
+        {
+            StudentId = SortOrderDirection.Descending,
+        };
+        
+        var sortOrder1 = new StudentSortOrder
+        {
+            Name = SortOrderDirection.Ascending,
+        };
+        
+        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(searchCriteria), JsonSerializer.Serialize(searchCriteria, options));
+
+        var order = new SortOrderBase<Student>[] { sortOrder1, sortOrder0 };
+        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(sortOrder0), JsonSerializer.Serialize(order, options));
 
         try
         {
-            result = students.Where(aggregateSearchCriteria).AsAsyncEnumerable();
+            result = students.Where(searchCriteria).ApplySort(order).AsAsyncEnumerable();
         }
         catch (Exception e)
         {

@@ -1,11 +1,14 @@
 namespace ConsoleEF;
 
+using ConsoleEF.Data;
+
 using SearchFramework.SortOrder;
 
-public class StudentSortOrder : SortOrderBase
+public class StudentSortOrder : SortOrderBase<Student>
 {
-    public SortOrderDirection Name { get; set; }
-    public SortOrderDirection StudentId { get; set; }
+    public SortOrderDirective<string>? Name { get; set; }
+    public SortOrderDirective<int>? StudentId { get; set; }
 
-    protected override (string Name, SortOrderDirection Direction) DefaultSort => (nameof(this.StudentId), SortOrderDirection.Ascending);
+    protected override (string Name, ISortOrderDirective Directive) DefaultSort =>
+        (nameof(this.StudentId), new SortOrderDirective<int> { Direction = SortOrderDirection.Ascending });
 }
