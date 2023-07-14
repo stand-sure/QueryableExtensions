@@ -2,7 +2,7 @@ namespace ConsoleEF;
 
 using ConsoleEF.Data;
 
-using SearchFramework.SortOrder;
+using Taazaa.Shared.DevKit.Framework.Search.SortOrder;
 
 public class StudentSortOrder : SortOrderBase<Student>
 {
@@ -10,5 +10,5 @@ public class StudentSortOrder : SortOrderBase<Student>
     public SortOrderDirective<int>? StudentId { get; set; }
 
     protected override (string Name, ISortOrderDirective Directive) DefaultSort =>
-        (nameof(this.StudentId), new SortOrderDirective<int> { Direction = SortOrderDirection.Ascending });
+        (nameof(this.StudentId), new SortOrderDirective<int> { Direction = SortOrderDirection.Descending });
 }

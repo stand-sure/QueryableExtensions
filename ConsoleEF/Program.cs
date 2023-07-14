@@ -32,6 +32,9 @@ hostBuilder.ConfigureServices((context, services) =>
         builder.UseNpgsql(connectionString);
     });
 
+    services.AddTransient<StudentReadOnlyRepository>();
+    services.AddTransient<StudentReadWriteRepository>();
+
     services.AddHostedService<ConsoleHostedService>();
 
     services.AddLogging();
