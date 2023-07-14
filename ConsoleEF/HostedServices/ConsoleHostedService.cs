@@ -9,25 +9,30 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using SearchFramework.SearchCriteria;
-using SearchFramework.SortOrder;
+using Taazaa.Shared.DevKit.Framework.Repository;
+using Taazaa.Shared.DevKit.Framework.Search;
+using Taazaa.Shared.DevKit.Framework.Search.SearchCriteria;
+using Taazaa.Shared.DevKit.Framework.Search.SortOrder;
 
 internal class ConsoleHostedService : BackgroundService
 {
     private const string MessageTemplate = $"{nameof(ConsoleHostedService)}.{{Method}}: {{Message}}";
     private readonly IDbContextFactory<SchoolContext> dbContextFactory;
     private readonly IHostApplicationLifetime lifetime;
+    private readonly StudentReadWriteRepository repository;
 
     private readonly ILogger<ConsoleHostedService> logger;
 
     public ConsoleHostedService(
         ILogger<ConsoleHostedService> logger,
         IDbContextFactory<SchoolContext> dbContextFactory,
-        IHostApplicationLifetime lifetime)
+        IHostApplicationLifetime lifetime,
+        StudentReadWriteRepository repository)
     {
         this.logger = logger;
         this.dbContextFactory = dbContextFactory;
         this.lifetime = lifetime;
+        this.repository = repository;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -41,7 +46,7 @@ internal class ConsoleHostedService : BackgroundService
             this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"Course: {course}");
         }
 
-        await EnsureStudentsAsync(context, stoppingToken).ConfigureAwait(false);
+        await this.EnsureStudentsAsync(context, stoppingToken).ConfigureAwait(false);
 
         await foreach (Student student in GetStudentsAsync(context).ConfigureAwait(false))
         {
@@ -53,10 +58,23 @@ internal class ConsoleHostedService : BackgroundService
             this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
         }
 
-        await foreach (Student student in SearchStudentsJson(context).ConfigureAwait(false))
+        (int totalCount, IAsyncEnumerable<Student>? students) = await SearchStudentsJson(context).ConfigureAwait(false);
+
+        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(totalCount), totalCount);
+
+        await foreach (Student student in students.ConfigureAwait(false))
         {
-            this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(this.ExecuteAsync), $"{student}");
+            this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(students), $"{student}");
         }
+
+        PagedResult<Student?> pagedResult = this.SearchStudentRepo(stoppingToken);
+
+        foreach (Student? student in pagedResult.Data!)
+        {
+            this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(pagedResult), $"{student}");
+        }
+
+        this.logger.LogInformation(ConsoleHostedService.MessageTemplate, nameof(pagedResult.HasMoreData), $"{pagedResult.HasMoreData}");
 
         this.lifetime.StopApplication();
     }
@@ -83,16 +101,16 @@ internal class ConsoleHostedService : BackgroundService
         await CreateSomeCoursesAsync(context, stoppingToken).ConfigureAwait(false);
     }
 
-    private static async Task EnsureStudentsAsync(SchoolContext context, CancellationToken stoppingToken)
+    private async Task EnsureStudentsAsync(SchoolContext context, CancellationToken stoppingToken)
     {
         int count = await context.Students.CountAsync(stoppingToken).ConfigureAwait(false);
 
-        if (count > 0)
+        if (count > 20)
         {
             return;
         }
 
-        await MakeSomeStudentsAsync(context, stoppingToken).ConfigureAwait(false);
+        await this.MakeSomeStudentsAsync(stoppingToken).ConfigureAwait(false);
     }
 
     private static IAsyncEnumerable<Student> GetStudentsAsync(SchoolContext context)
@@ -112,21 +130,19 @@ internal class ConsoleHostedService : BackgroundService
         };
     }
 
-    private static async Task MakeSomeStudentsAsync(DbContext context, CancellationToken cancellationToken)
+    private async Task MakeSomeStudentsAsync(CancellationToken cancellationToken)
     {
         for (var i = 0; i < 10; i += 1)
         {
             FavoriteColor? favoriteColor = Enum.IsDefined(typeof(FavoriteColor), i) ? (FavoriteColor)i : null;
 
-            Student s = MakeStudent(favoriteColor);
+            StudentCreateInfo createInfo = MakeStudentCreateInfo(favoriteColor);
 
-            await context.AddAsync(s, cancellationToken).ConfigureAwait(false);
+            await this.repository.CreateAsync(createInfo, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
-
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    private static Student MakeStudent(FavoriteColor? favoriteColor)
+    private static StudentCreateInfo MakeStudentCreateInfo(FavoriteColor? favoriteColor)
     {
         return new Student { Name = Guid.NewGuid().ToString("N"), FavoriteColor = favoriteColor };
     }
@@ -160,7 +176,32 @@ internal class ConsoleHostedService : BackgroundService
         return result;
     }
 
-    private static IAsyncEnumerable<Student> SearchStudentsJson(SchoolContext context)
+    private PagedResult<Student?> SearchStudentRepo(CancellationToken cancellationToken)
+    {
+        StudentSearchCriteria searchCriteria = new()
+        {
+            StudentId = new ValueSearchCriteria<int>
+            {
+                NotEqualTo = 2,
+            },
+        };
+
+        var sortOrder0 = new StudentSortOrder
+        {
+            StudentId = SortOrderDirection.Descending,
+        };
+
+        var sortOrder1 = new StudentSortOrder
+        {
+            Name = SortOrderDirection.Ascending,
+        };
+
+        StudentSortOrder[] order = { sortOrder1, sortOrder0 };
+        
+        return this.repository.Search(searchCriteria, order, cancellationToken: cancellationToken);
+    }
+
+    private static async Task<(int totalCount, IAsyncEnumerable<Student> students)> SearchStudentsJson(SchoolContext context)
     {
         IQueryable<Student> students = context.Students.AsNoTracking();
 
@@ -172,9 +213,13 @@ internal class ConsoleHostedService : BackgroundService
 
         var sortOrder = JsonSerializer.Deserialize<IEnumerable<StudentSortOrder>>(jsonSortOrder)!;
 
-        IAsyncEnumerable<Student> result = students.Where(searchCriteria).ApplySort(sortOrder).AsAsyncEnumerable();
+        IQueryable<Student> query = students.Where(searchCriteria).ApplySort(sortOrder);
 
-        return result;
+        IAsyncEnumerable<Student> result = query.AsAsyncEnumerable();
+
+        int totalCount = await query.CountAsync().ConfigureAwait(false);
+
+        return (totalCount, result);
     }
 
     ////private static async IAsyncEnumerable<T> Empty<T>()

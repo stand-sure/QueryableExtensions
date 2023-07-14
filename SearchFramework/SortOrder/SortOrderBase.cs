@@ -11,8 +11,7 @@ public abstract class SortOrderBase<TSource> : IValidatableObject
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         var results = new List<ValidationResult>();
-
-        int? count = this.GetNonNullSortOrderDirectives().Count();
+        int? count = (validationContext.ObjectInstance as SortOrderBase<TSource>)?.GetNonNullSortOrderDirectives().Count();
 
         if (count > 1)
         {

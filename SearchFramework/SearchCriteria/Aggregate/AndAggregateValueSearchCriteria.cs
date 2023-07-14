@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 public class AndAggregateValueSearchCriteria<TSearchCriteria, TSource>
     where TSearchCriteria : SearchCriteriaBase<TSource>
 {
-    public IEnumerable<TSearchCriteria>? Criteria { get; init; }
+    private IEnumerable<TSearchCriteria>? Criteria { get; init; }
 
     public static implicit operator Expression<Func<TSource, bool>>(AndAggregateValueSearchCriteria<TSearchCriteria, TSource> searchCriteria)
     {
