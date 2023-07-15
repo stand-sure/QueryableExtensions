@@ -1,8 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleEF", "ConsoleEF\ConsoleEF.csproj", "{74700D12-27DA-4940-AD4F-C76BD2A06F54}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchFramework", "SearchFramework\SearchFramework.csproj", "{EC8A28F9-76EF-4349-A7F9-8684B783E43F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{7928991D-586E-47B8-8EFC-8779EABAC654}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +21,9 @@ Global
 		{EC8A28F9-76EF-4349-A7F9-8684B783E43F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC8A28F9-76EF-4349-A7F9-8684B783E43F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC8A28F9-76EF-4349-A7F9-8684B783E43F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7928991D-586E-47B8-8EFC-8779EABAC654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7928991D-586E-47B8-8EFC-8779EABAC654}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7928991D-586E-47B8-8EFC-8779EABAC654}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7928991D-586E-47B8-8EFC-8779EABAC654}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

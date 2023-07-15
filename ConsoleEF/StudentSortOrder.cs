@@ -2,7 +2,7 @@ namespace ConsoleEF;
 
 using ConsoleEF.Data;
 
-using SearchFramework.SortOrder;
+using Taazaa.Shared.DevKit.Framework.Search.SortOrder;
 
 public class StudentSortOrder : SortOrderBase<Student>
 {

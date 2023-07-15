@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using SearchFramework.SearchCriteria;
-using SearchFramework.SortOrder;
+using Taazaa.Shared.DevKit.Framework.Search.SearchCriteria;
+using Taazaa.Shared.DevKit.Framework.Search.SortOrder;
 
 internal class ConsoleHostedService : BackgroundService
 {
